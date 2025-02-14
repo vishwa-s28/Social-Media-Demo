@@ -6,19 +6,22 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
       Comment.belongsTo(models.User, { foreignKey: "user_id", as: "user" });
       Comment.belongsTo(models.Post, { foreignKey: "post_id", as: "post" });
       Comment.hasMany(models.Tag, { foreignKey: "comment_id" });
-      Comment.hasMany(models.Like, { foreignKey: "comment_id" });
-      Comment.belongsToMany(models.Post, {
-        through: models.Tag,
-        as: "TaggedComments",
+      Comment.hasMany(models.Like, {
         foreignKey: "comment_id",
-        otherKey: "post_id",
+        as: "commentLikes",
       });
-      Comment.belongsToMany(models.Post, {
-        through: models.Like,
-        as: "LikedComments",
-        foreignKey: "comment_id",
-        otherKey: "post_id",
-      });
+      // Comment.belongsToMany(models.Post, {
+      //   through: models.Tag,
+      //   as: "TaggedComments",
+      //   foreignKey: "comment_id",
+      //   otherKey: "post_id",
+      // });
+      // Comment.belongsToMany(models.Post, {
+      //   through: models.Like,
+      //   as: "LikedComments",
+      //   foreignKey: "comment_id",
+      //   otherKey: "post_id",
+      // });
     }
   }
 

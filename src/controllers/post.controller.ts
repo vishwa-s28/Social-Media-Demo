@@ -9,32 +9,6 @@ interface CustomRequest extends Request {
   };
 }
 
-const getAllPosts = async (
-  req: CustomRequest,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    if (req.user?.role !== "admin") {
-      res.status(401).json({ message: "Access denied, you are not an admin" });
-      return;
-    }
-    const posts = await db.Post.findAll({
-      attributes: { exclude: ["user_id"] },
-      include: [
-        {
-          model: db.User,
-          as: "creator",
-          attributes: ["id", "username", "profile_visibility"],
-        },
-      ],
-    });
-    res.json(posts);
-  } catch (err) {
-    next(err);
-  }
-};
-
 const getPostById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const postId = req.params.id;
@@ -134,4 +108,4 @@ const deletePost = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export { createPost, getAllPosts, getPostById, deletePost, updatePost };
+export { createPost, getPostById, deletePost, updatePost };

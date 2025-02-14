@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import db from "../models/index";
+import sendNotification from "../config/webpush";
 const { Comment, Post, Tag, User } = db;
 interface CustomRequest extends Request {
   user?: {
@@ -44,6 +45,10 @@ const tagUserInPost = async (
         },
       ],
     });
+    await sendNotification(tagged_id, {
+      title: "Tag in a post",
+      body: `${req.user?.email} tagged you in a post!`,
+    });
     res.send({ message: "User tagged successfully", tagWithDetails });
   } catch (err) {
     next(err);
@@ -84,6 +89,10 @@ const tagUserInComment = async (
           attributes: ["id", "content"],
         },
       ],
+    });
+    await sendNotification(tagged_id, {
+      title: "Comment on your post",
+      body: `${req.user?.email} mentioned you in a comment!`,
     });
     res.send({ message: "User tagged successfully", tagWithDetails });
   } catch (err) {

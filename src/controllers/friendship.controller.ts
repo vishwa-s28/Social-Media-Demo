@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import db from "../models/index";
+import sendNotification from "../config/webpush";
 const { Friendship } = db;
 interface CustomRequest extends Request {
   user?: {
@@ -37,6 +38,10 @@ const createFriendship = async (
           attributes: ["id", "username", "email"],
         },
       ],
+    });
+    await sendNotification(friend_id, {
+      title: "Friend Request",
+      body: `You have a new friend request from ${req.user?.email}!`,
     });
     res.status(201).json(friendshipWithFriend);
   } catch (err) {

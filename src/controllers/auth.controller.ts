@@ -23,11 +23,9 @@ const registerUser = async (
     } = req.body;
 
     if (!username || !email || !password) {
-      res
-        .status(400)
-        .json({
-          message: "Missing required fields: name, email, and password.",
-        });
+      res.status(400).json({
+        message: "Missing required fields: name, email, and password.",
+      });
       return;
     }
 
@@ -47,12 +45,9 @@ const registerUser = async (
 
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
-      res
-        .status(400)
-        .json({
-          message:
-            "Email already exists. Please use a different email address.",
-        });
+      res.status(400).json({
+        message: "Email already exists. Please use a different email address.",
+      });
       return;
     }
 
@@ -107,13 +102,12 @@ const loginUser = async (
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET_KEY as string,
-      { expiresIn: expiration as jwt.SignOptions["expiresIn"] } 
+      { expiresIn: expiration as jwt.SignOptions["expiresIn"] }
     );
 
     await Token.create({
       user_id: user.id,
       token,
-      type: "access", 
     });
 
     res.status(200).json({ token });
@@ -122,4 +116,30 @@ const loginUser = async (
   }
 };
 
-export { registerUser, loginUser };
+const logoutUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      res.status(401).json({ message: "Unauthorized. No token provided." });
+      return;
+    }
+
+    const token = authHeader.split(" ")[1];
+    const deletedToken = await Token.destroy({ where: { token } });
+
+    if (!deletedToken) {
+      res.status(400).json({ message: "Logout failed. Invalid token." });
+      return;
+    }
+
+    res.status(200).json({ message: "Logout successful." });
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export { registerUser, loginUser, logoutUser };

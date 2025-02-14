@@ -5,12 +5,17 @@ import generalRoutes from "./routes/index";
 import dotenv from "dotenv";
 import db from "./models/index";
 import { createServer } from "http";
+import path from "path";
 dotenv.config();
 
 const app: Express = express();
 const PORT: number | string = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "../client")));
+app.get("/config", (req, res) => {
+  res.json({ publicVapidKey: process.env.PUBLIC_VAPID_KEY });
+});
 app.use("/", generalRoutes);
 
 const server = createServer(app);

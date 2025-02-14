@@ -4,35 +4,35 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
   class Post extends Model {
     static associate(models: any) {
       Post.belongsTo(models.User, { foreignKey: "user_id", as: "creator" });
-      Post.hasMany(models.Comment, { foreignKey: "post_id" });
-      Post.hasMany(models.Tag, { foreignKey: "post_id" });
-      Post.hasMany(models.Like, { foreignKey: "post_id" });
+      Post.hasMany(models.Comment, { foreignKey: "post_id", as: "comments" });
+      Post.hasMany(models.Tag, { foreignKey: "post_id", as: "taggedUser" });
+      Post.hasMany(models.Like, { foreignKey: "post_id", as: "postLikes" });
       Post.hasMany(models.Privacy, { foreignKey: "post_id" });
       Post.hasMany(models.Share, { foreignKey: "post_id", as: "Shares" });
-      Post.belongsToMany(models.User, {
-        through: models.Tag,
-        as: "TaggedUsers",
-        foreignKey: "post_id",
-        otherKey: "user_id",
-      });
-      Post.belongsToMany(models.User, {
-        through: models.Like,
-        as: "Likers",
-        foreignKey: "post_id",
-        otherKey: "user_id",
-      });
-      Post.belongsToMany(models.Comment, {
-        through: models.Tag,
-        as: "CommentsTags",
-        foreignKey: "post_id",
-        otherKey: "comment_id",
-      });
-      Post.belongsToMany(models.Comment, {
-        through: models.Like,
-        as: "CommentLikes",
-        foreignKey: "post_id",
-        otherKey: "comment_id",
-      });
+      // Post.belongsToMany(models.User, {
+      //   through: models.Tag,
+      //   as: "TaggedUsers",
+      //   foreignKey: "post_id",
+      //   otherKey: "user_id",
+      // });
+      // Post.belongsToMany(models.User, {
+      //   through: models.Like,
+      //   as: "Likers",
+      //   foreignKey: "post_id",
+      //   otherKey: "user_id",
+      // });
+      // Post.belongsToMany(models.Comment, {
+      //   through: models.Tag,
+      //   as: "CommentsTags",
+      //   foreignKey: "post_id",
+      //   otherKey: "comment_id",
+      // });
+      // Post.belongsToMany(models.Comment, {
+      //   through: models.Like,
+      //   as: "CommentLikes",
+      //   foreignKey: "post_id",
+      //   otherKey: "comment_id",
+      // });
     }
   }
 

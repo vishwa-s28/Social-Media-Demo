@@ -8,6 +8,7 @@ interface CustomRequest extends Request {
     email: string;
     role: string;
   };
+  token?: string;
 }
 
 interface JwtPayload {
@@ -35,7 +36,7 @@ const authenticateToken = (
       process.env.JWT_SECRET_KEY!
     ) as JwtPayload;
 
-    // Pass only payload (id and email) to req
+    req.token = token;
     req.user = { id: decoded.id, email: decoded.email, role: decoded.role };
 
     next();

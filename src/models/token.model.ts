@@ -25,10 +25,9 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
         type: dataTypes.STRING,
         allowNull: false,
       },
-      type: {
-        type: dataTypes.ENUM("refresh", "access"),
-        allowNull: false,
-        defaultValue: "access",
+      push_subscription: {
+        type: dataTypes.JSON,
+        allowNull: true,
       },
     },
     {

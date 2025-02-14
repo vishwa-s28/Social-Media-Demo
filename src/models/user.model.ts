@@ -31,9 +31,6 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
         foreignKey: "sender_id",
         as: "GroupMessages",
       });
-      User.hasMany(models.Notification, {
-        foreignKey: "user_id",
-      });
       User.hasMany(models.Tag, {
         foreignKey: "user_id",
         as: "tagger",
@@ -64,37 +61,36 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
         foreignKey: "receiver_id",
       });
 
-      User.belongsToMany(models.User, {
-        through: models.Share,
-        as: "SentShares",
-        foreignKey: "sender_id",
-        otherKey: "receiver_id",
-      });
-
-      User.belongsToMany(models.User, {
-        through: models.Share,
-        as: "ReceivedShares",
-        foreignKey: "receiver_id",
-        otherKey: "sender_id",
-      });
-      User.belongsToMany(models.User, {
-        through: models.Friendship,
-        as: "Friends",
-        foreignKey: "user_id",
-        otherKey: "friend_id",
-      });
-      User.belongsToMany(models.Post, {
-        through: models.Tag,
-        as: "TaggedPosts",
-        foreignKey: "user_id",
-        otherKey: "post_id",
-      });
-      User.belongsToMany(models.Post, {
-        through: models.Like,
-        as: "LikedPosts",
-        foreignKey: "user_id",
-        otherKey: "post_id",
-      });
+      // User.belongsToMany(models.User, {
+      //   through: models.Share,
+      //   as: "SentShares",
+      //   foreignKey: "sender_id",
+      //   otherKey: "receiver_id",
+      // });
+      // User.belongsToMany(models.User, {
+      //   through: models.Share,
+      //   as: "ReceivedShares",
+      //   foreignKey: "receiver_id",
+      //   otherKey: "sender_id",
+      // });
+      // User.belongsToMany(models.User, {
+      //   through: models.Friendship,
+      //   as: "Friends",
+      //   foreignKey: "user_id",
+      //   otherKey: "friend_id",
+      // });
+      // User.belongsToMany(models.Post, {
+      //   through: models.Tag,
+      //   as: "TaggedPosts",
+      //   foreignKey: "user_id",
+      //   otherKey: "post_id",
+      // });
+      // User.belongsToMany(models.Post, {
+      //   through: models.Like,
+      //   as: "LikedPosts",
+      //   foreignKey: "user_id",
+      //   otherKey: "post_id",
+      // });
     }
   }
 

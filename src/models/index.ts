@@ -9,7 +9,6 @@ import PostModel from "./post.model";
 import CommentModel from "./comment.model";
 import FriendshipModel from "./friendship.model";
 import ChatModel from "./chat.model";
-import NotificationModel from "./notification.model";
 import TagModel from "./tag.model";
 import LikeModel from "./like.model";
 import BlockModel from "./block.model";
@@ -40,7 +39,6 @@ const Post = PostModel(sequelize, DataTypes);
 const Comment = CommentModel(sequelize, DataTypes);
 const Friendship = FriendshipModel(sequelize, DataTypes);
 const Chat = ChatModel(sequelize, DataTypes);
-const Notification = NotificationModel(sequelize, DataTypes);
 const Tag = TagModel(sequelize, DataTypes);
 const Like = LikeModel(sequelize, DataTypes);
 const Block = BlockModel(sequelize, DataTypes);
@@ -57,7 +55,6 @@ const db = {
   Comment,
   Friendship,
   Chat,
-  Notification,
   Tag,
   Like,
   Block,
@@ -71,7 +68,7 @@ const db = {
 // Call `associate()` for each model to define relationships
 Object.values(db.models).forEach((model: any) => {
   if (model.associate) {
-    model.associate(db.models); // Pass all models to associate method
+    model.associate(db.models);
   }
 });
 

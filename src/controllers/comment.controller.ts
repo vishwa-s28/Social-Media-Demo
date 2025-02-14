@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import db from "../models/index";
+import sendNotification from "../config/webpush";
 const { Comment, Post } = db;
 interface CustomRequest extends Request {
   user?: {
@@ -89,6 +90,13 @@ const addComment = async (
       content,
       post_id,
       user_id: user,
+    });
+    const postOwner = await Post.findByPk(post_id);
+    const postOwnerId = postOwner?.get("user_id");
+
+    await sendNotification(postOwnerId as string, {
+      title: "Comment on your post",
+      body: `${req.user?.email} commented on your post! `,
     });
     res.status(201).json(comment);
   } catch (err) {
