@@ -1,5 +1,7 @@
-import express, { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import db from "../models";
+import AppError from "../utils/error-helper";
+import { ADMIN_ERRORS } from "../constants/error.constant";
 const { Post } = db;
 interface CustomRequest extends Request {
   user?: {
@@ -16,8 +18,7 @@ const getAllPosts = async (
 ): Promise<void> => {
   try {
     if (req.user?.role !== "admin") {
-      res.status(401).json({ message: "Access denied, you are not an admin" });
-      return;
+      throw new AppError(ADMIN_ERRORS.ACCESS_DENIED, 401);
     }
     const posts = await Post.findAll({
       attributes: { exclude: ["user_id", "createdAt", "updatedAt"] },

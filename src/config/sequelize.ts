@@ -2,12 +2,13 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import { Sequelize } from "sequelize";
 import config from "./database";
+import { CONFIG_ERROR } from "../constants/error.constant";
 
 const env: string = process.env.NODE_ENV || "development";
 const dbConfig = config[env];
 
 if (!dbConfig) {
-  throw new Error(`Database configuration not found for environment: ${env}`);
+  throw new Error(`${CONFIG_ERROR.SEQUELIZE_CONFIG} ${env}`);
 }
 
 const sequelize = new Sequelize(

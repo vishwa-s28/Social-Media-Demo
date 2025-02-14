@@ -1,7 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import db from "../models/index";
 import sendNotification from "../config/webpush";
+import AppError from "../utils/error-helper";
+import { TAG_ERRORS } from "../constants/error.constant";
+
 const { Comment, Post, Tag, User } = db;
+
 interface CustomRequest extends Request {
   user?: {
     id: string;
@@ -18,12 +22,19 @@ const tagUserInPost = async (
   try {
     const user_id = req.user?.id;
     const { post_id, tagged_id } = req.body;
+
+    if (!user_id) {
+      throw new AppError(TAG_ERRORS.UNAUTHORIZED, 401);
+    }
+
     const post = await Post.findByPk(post_id);
     if (!post) {
-      res.status(404).send({ message: "Post not found" });
+      throw new AppError(TAG_ERRORS.POST_NOT_FOUND, 404);
     }
+
     const tag = await Tag.create({ user_id, post_id, tagged_id });
     const tagId = tag.getDataValue("id");
+
     const tagWithDetails = await Tag.findByPk(tagId, {
       attributes: {
         exclude: ["user_id", "tagged_id", "post_id", "comment_id"],
@@ -45,11 +56,15 @@ const tagUserInPost = async (
         },
       ],
     });
-    await sendNotification(tagged_id, {
-      title: "Tag in a post",
-      body: `${req.user?.email} tagged you in a post!`,
-    });
-    res.send({ message: "User tagged successfully", tagWithDetails });
+
+    if (user_id !== tagged_id) {
+      await sendNotification(tagged_id, {
+        title: "Tag in a post",
+        body: `${req.user?.email} tagged you in a post!`,
+      });
+    }
+
+    res.send({ message: TAG_ERRORS.USER_TAGGED, tagWithDetails });
   } catch (err) {
     next(err);
   }
@@ -63,12 +78,19 @@ const tagUserInComment = async (
   try {
     const user_id = req.user?.id;
     const { id, tagged_id } = req.body;
+
+    if (!user_id) {
+      throw new AppError(TAG_ERRORS.UNAUTHORIZED, 401);
+    }
+
     const comment = await Comment.findByPk(id);
     if (!comment) {
-      res.status(404).send({ message: "Comment not found" });
+      throw new AppError(TAG_ERRORS.COMMENT_NOT_FOUND, 404);
     }
+
     const tag = await Tag.create({ user_id, comment_id: id, tagged_id });
     const tagId = tag.getDataValue("id");
+
     const tagWithDetails = await Tag.findByPk(tagId, {
       attributes: {
         exclude: ["user_id", "tagged_id", "post_id", "comment_id"],
@@ -90,11 +112,15 @@ const tagUserInComment = async (
         },
       ],
     });
-    await sendNotification(tagged_id, {
-      title: "Comment on your post",
-      body: `${req.user?.email} mentioned you in a comment!`,
-    });
-    res.send({ message: "User tagged successfully", tagWithDetails });
+
+    if (user_id !== tagged_id) {
+      await sendNotification(tagged_id, {
+        title: "Mention in a comment",
+        body: `${req.user?.email} mentioned you in a comment!`,
+      });
+    }
+
+    res.send({ message: TAG_ERRORS.USER_TAGGED, tagWithDetails });
   } catch (err) {
     next(err);
   }

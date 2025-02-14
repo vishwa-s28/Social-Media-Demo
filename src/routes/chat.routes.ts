@@ -5,12 +5,13 @@ import {
   updateMessageStatus,
   deleteMessage,
 } from "../controllers/chat.controller";
+import { CHAT } from "../constants/endpoint.constant";
 
 const router = express.Router();
 
-router.post("/send", sendMessage);
-router.get("/history", getChatHistory);
-router.patch("/message/:id", updateMessageStatus);
-router.delete("/message/:id", deleteMessage);
+router.post(CHAT.SEND, sendMessage);
+router.get(CHAT.HISTORY, getChatHistory);
+router.patch(CHAT.MESSAGE, updateMessageStatus);
+router.delete(CHAT.MESSAGE, deleteMessage);
 
 export default router;

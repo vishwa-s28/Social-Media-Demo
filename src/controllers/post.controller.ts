@@ -1,6 +1,10 @@
 import express, { Request, Response, NextFunction } from "express";
 import db from "../models";
+import AppError from "../utils/error-helper";
+import { POST_ERRORS } from "../constants/error.constant";
+
 const { Post } = db;
+
 interface CustomRequest extends Request {
   user?: {
     id: string;
@@ -23,7 +27,7 @@ const getPostById = async (req: Request, res: Response, next: NextFunction) => {
       ],
     });
     if (!post) {
-      res.status(404).json({ message: "Post not found" });
+      throw new AppError(POST_ERRORS.POST_NOT_FOUND, 404);
     }
     res.json(post);
   } catch (err) {
@@ -35,20 +39,16 @@ const createPost = async (
   req: CustomRequest,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+) => {
   try {
     const { content, caption } = req.body;
 
     if (!req.user || !req.user.id) {
-      res.status(401).json({ message: "Unauthorized. Please log in." });
-      return;
+      throw new AppError(POST_ERRORS.UNAUTHORIZED, 401);
     }
 
     if (!content && !caption) {
-      res
-        .status(400)
-        .json({ message: "Either 'content' or 'caption' is required." });
-      return;
+      throw new AppError(POST_ERRORS.CONTENT_OR_CAPTION_REQUIRED, 400);
     }
 
     const post = await db.Post.create({
@@ -57,7 +57,7 @@ const createPost = async (
       caption,
     });
 
-    res.status(201).json({ message: "Post created successfully.", post });
+    res.status(201).json({ message: POST_ERRORS.POST_CREATED, post });
   } catch (err) {
     next(err);
   }
@@ -68,12 +68,9 @@ const updatePost = async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
     const { content, caption } = req.body;
     if (!content && !caption) {
-      res.status(400).json({
-        message:
-          "At least one field ('content' or 'caption') is required to update.",
-      });
-      return;
+      throw new AppError(POST_ERRORS.UPDATE_FIELD_REQUIRED, 400);
     }
+
     const post = await db.Post.findByPk(id, {
       attributes: { exclude: ["user_id"] },
       include: [
@@ -84,14 +81,17 @@ const updatePost = async (req: Request, res: Response, next: NextFunction) => {
         },
       ],
     });
+
     if (!post) {
-      res.status(404).json({ message: "Post not found" });
+      throw new AppError(POST_ERRORS.POST_NOT_FOUND, 404);
     }
+
     await post?.update({
       content,
       caption,
     });
-    res.json({ message: "Post updated successfully.", post });
+
+    res.json({ message: POST_ERRORS.POST_UPDATED, post });
   } catch (err) {
     next(err);
   }
@@ -102,7 +102,7 @@ const deletePost = async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
     const deletedPost = await Post.destroy({ where: { id } });
 
-    res.status(201).json({ message: "Post deleted" });
+    res.status(200).json({ message: POST_ERRORS.POST_DELETED });
   } catch (err) {
     next(err);
   }

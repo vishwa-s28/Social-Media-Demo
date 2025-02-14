@@ -1,6 +1,7 @@
 import { Server as HttpServer } from "http";
 import { Server } from "socket.io";
 import { handleSocketEvents } from "../services/socket.service";
+import { CONFIG_ERROR } from "../constants/error.constant";
 
 let io: Server | null = null;
 
@@ -20,6 +21,6 @@ export const initSocket = (server: HttpServer) => {
 };
 
 export const getSocketIO = (): Server => {
-  if (!io) throw new Error("Socket.IO is not initialized!");
+  if (!io) throw new Error(CONFIG_ERROR.SOCKET_CONFIG);
   return io;
 };

@@ -6,13 +6,14 @@ import {
   getCommentById,
   updateComment,
 } from "../controllers/comment.controller";
+import { COMMENTS } from "../constants/endpoint.constant";
 
 const router = express.Router();
 
-router.get("/by_user", getAllCommentByUser);
-router.get("/on_post/:id", getCommentById);
-router.post("/on_post", addComment);
-router.put("/on_post/:id", updateComment);
-router.delete("/delete_on_post/:id", deleteComment);
+router.get(COMMENTS.BY_USER, getAllCommentByUser);
+router.get(COMMENTS.ON_POST_ID, getCommentById);
+router.post(COMMENTS.ON_POST, addComment);
+router.put(COMMENTS.ON_POST_ID, updateComment);
+router.delete(COMMENTS.DELETE_ON_POST, deleteComment);
 
 export default router;

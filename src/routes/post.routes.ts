@@ -5,12 +5,13 @@ import {
   getPostById,
   updatePost,
 } from "../controllers/post.controller";
+import { POST } from "../constants/endpoint.constant";
 
 const router = express.Router();
 
-router.get("/:id", getPostById); //query: userId, params: postId
-router.post("/", createPost);
-router.put("/:id", updatePost);
-router.delete("/:id", deletePost);
+router.get(POST.BY_ID, getPostById); //query: userId, params: postId
+router.post(POST.BASE, createPost);
+router.put(POST.BY_ID, updatePost);
+router.delete(POST.BY_ID, deletePost);
 
 export default router;

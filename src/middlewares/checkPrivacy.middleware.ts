@@ -1,8 +1,10 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import db from "../models/index";
-const { Friendship, User } = db;
-
 import { CustomRequest } from "../middlewares/auth.middleware";
+import AppError from "../utils/error-helper";
+import { GENERAL_MESSAGES } from "../constants/error.constant";
+
+const { Friendship, User } = db;
 
 const checkPrivacy = async (
   req: CustomRequest,
@@ -14,11 +16,7 @@ const checkPrivacy = async (
     const requestingUserId = req.user?.id;
 
     if (!requestingUserId) {
-      res.status(401).json({
-        success: false,
-        message: "Unauthorized. Please log in.",
-      });
-      return;
+      throw new AppError(GENERAL_MESSAGES.UNAUTHORIZED_LOGIN, 401);
     }
 
     const targetUser = await User.findOne({
@@ -27,11 +25,7 @@ const checkPrivacy = async (
     });
 
     if (!targetUser) {
-      res.status(404).json({
-        success: false,
-        message: "The user does not exist.",
-      });
-      return;
+      throw new AppError(GENERAL_MESSAGES.USER_NOT_FOUND, 404);
     }
 
     if (targetUser.profile_visibility === "public") {
@@ -47,21 +41,12 @@ const checkPrivacy = async (
     });
 
     if (!isFriend) {
-      res.status(403).json({
-        success: false,
-        message: "Access denied. This user's account is private.",
-      });
-      return;
+      throw new AppError(GENERAL_MESSAGES.PRIVACY_DENIED, 403);
     }
 
     next();
   } catch (error) {
-    console.error("Error checking privacy:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "An error occurred while checking privacy settings.",
-    });
+    throw new AppError(GENERAL_MESSAGES.PRIVACY_CHECK_ERROR, 500);
   }
 };
 

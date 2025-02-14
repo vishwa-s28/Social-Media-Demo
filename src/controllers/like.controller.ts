@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import db from "../models/index";
+import AppError from "../utils/error-helper";
+import { LIKE_ERRORS } from "../constants/error.constant";
+
 const { Comment, Post, Like, User } = db;
+
 interface CustomRequest extends Request {
   user?: {
     id: string;
@@ -17,16 +21,17 @@ const likePost = async (
   try {
     const user_id = req.user?.id;
     const { post_id } = req.body;
+
     const post = await Post.findByPk(post_id);
     if (!post) {
-      res.status(404).send({ message: "Post not found" });
+      throw new AppError(LIKE_ERRORS.POST_NOT_FOUND, 404);
     }
+
     const like = await Like.create({ user_id, post_id });
     const likeId = like.getDataValue("id");
+
     const likeWithDetails = await Like.findByPk(likeId, {
-      attributes: {
-        exclude: ["user_id", "post_id", "comment_id"],
-      },
+      attributes: { exclude: ["user_id", "post_id", "comment_id"] },
       include: [
         {
           model: User,
@@ -38,7 +43,8 @@ const likePost = async (
         },
       ],
     });
-    res.send({ message: "Post liked successfully", likeWithDetails });
+
+    res.send({ message: LIKE_ERRORS.POST_LIKED_SUCCESS, likeWithDetails });
   } catch (err) {
     next(err);
   }
@@ -52,16 +58,17 @@ const likeComment = async (
   try {
     const user_id = req.user?.id;
     const { comment_id } = req.body;
+
     const comment = await Comment.findByPk(comment_id);
     if (!comment) {
-      res.status(404).send({ message: "Comment not found" });
+      throw new AppError(LIKE_ERRORS.COMMENT_NOT_FOUND, 404);
     }
+
     const like = await Like.create({ user_id, comment_id });
     const likeId = like.getDataValue("id");
+
     const likeWithDetails = await Like.findByPk(likeId, {
-      attributes: {
-        exclude: ["user_id", "post_id", "comment_id"],
-      },
+      attributes: { exclude: ["user_id", "post_id", "comment_id"] },
       include: [
         {
           model: User,
@@ -73,7 +80,8 @@ const likeComment = async (
         },
       ],
     });
-    res.send({ message: "User tagged successfully", likeWithDetails });
+
+    res.send({ message: LIKE_ERRORS.COMMENT_LIKED_SUCCESS, likeWithDetails });
   } catch (err) {
     next(err);
   }

@@ -6,13 +6,14 @@ import {
   getUserFriendships,
   updateFriendship,
 } from "../controllers/friendship.controller";
+import { FRIENDSHIP } from "../constants/endpoint.constant";
 
 const router = express.Router();
 
-router.post("/", createFriendship);
-router.get("/all_friends", getUserFriendships);
-router.get("/", getFriendship);
-router.put("/:id", updateFriendship);
-router.delete("/:id", deleteFriendship);
+router.post(FRIENDSHIP.BASE, createFriendship);
+router.get(FRIENDSHIP.ALL_FRIENDS, getUserFriendships);
+router.get(FRIENDSHIP.BASE, getFriendship);
+router.put(FRIENDSHIP.FRIENDSHIP_ID, updateFriendship);
+router.delete(FRIENDSHIP.FRIENDSHIP_ID, deleteFriendship);
 
 export default router;

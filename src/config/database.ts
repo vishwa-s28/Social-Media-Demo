@@ -1,5 +1,6 @@
 import * as dotenv from "dotenv";
 import { Dialect } from "sequelize";
+import { CONFIG_ERROR } from "../constants/error.constant";
 
 dotenv.config();
 
@@ -12,9 +13,7 @@ const port: number = Number(process.env.DB_PORT) || 5432;
 const dialect: Dialect = "postgres";
 
 if (!username || !password || !database || !host) {
-  throw new Error(
-    "Database configuration is incomplete. Check your environment variables."
-  );
+  throw new Error(CONFIG_ERROR.MISSING_DB_CONFIG);
 }
 
 const config = {

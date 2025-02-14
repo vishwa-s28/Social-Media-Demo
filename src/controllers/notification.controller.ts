@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import db from "../models/index";
+import AppError from "../utils/error-helper";
+import { SUBSCRIPTION_ERRORS } from "../constants/error.constant";
+
 const { Token } = db;
 
 interface CustomRequest extends Request {
@@ -22,22 +25,20 @@ const userSubscription = async (
     const token = req.token;
 
     if (!subscription) {
-      res.status(400).json({ error: "Subscription object is required" });
-      return;
+      throw new AppError(SUBSCRIPTION_ERRORS.SUBSCRIPTION_REQUIRED, 400);
     }
 
     if (!user_id || !token) {
-      res.status(401).json({ error: "Unauthorized" });
-      return;
+      throw new AppError(SUBSCRIPTION_ERRORS.UNAUTHORIZED, 401);
     }
+
     await Token.update(
       { push_subscription: subscription },
       { where: { user_id, token } }
     );
-    res.status(201).json({ message: "Notifications enabled successfully" });
-    return;
+
+    res.status(201).json({ message: SUBSCRIPTION_ERRORS.SUBSCRIPTION_ENABLED });
   } catch (err) {
-    console.error("Error saving subscription:", err);
     next(err);
   }
 };
@@ -51,23 +52,19 @@ const userUnsubscription = async (
     const user_id = req.user?.id;
     const token = req.token;
 
-    // if (!subscription) {
-    //   res.status(400).json({ error: "Subscription object is required" });
-    //   return;
-    // }
-
     if (!user_id || !token) {
-      res.status(401).json({ error: "Unauthorized" });
-      return;
+      throw new AppError(SUBSCRIPTION_ERRORS.UNAUTHORIZED, 401);
     }
+
     await Token.update(
       { push_subscription: null },
       { where: { user_id, token } }
     );
-    res.status(201).json({ message: "Notifications disabled successfully" });
-    return;
+
+    res
+      .status(201)
+      .json({ message: SUBSCRIPTION_ERRORS.SUBSCRIPTION_DISABLED });
   } catch (err) {
-    console.error("Error saving subscription:", err);
     next(err);
   }
 };

@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
+import AppError from "../utils/error-helper";
+import { GENERAL_MESSAGES } from "../constants/error.constant";
 
 interface CustomRequest extends Request {
   user?: {
@@ -27,8 +29,7 @@ const authenticateToken = (
     const token = authHeader && authHeader.split(" ")[1];
 
     if (!token) {
-      res.status(401).json({ message: "Access token is missing" });
-      return;
+      throw new AppError(GENERAL_MESSAGES.ACCESS_TOKEN_MISSING, 401);
     }
 
     const decoded = jwt.verify(
@@ -42,10 +43,9 @@ const authenticateToken = (
     next();
   } catch (error: any) {
     if (error.name === "TokenExpiredError") {
-      res.status(401).json({ message: "Token expired" });
-      return;
+      throw new AppError(GENERAL_MESSAGES.TOKEN_EXPIRED, 401);
     }
-    res.status(403).json({ message: "Invalid token" });
+    res.status(403).json({ message: GENERAL_MESSAGES.INVALID_TOKEN });
   }
 };
 
@@ -54,10 +54,7 @@ const authorizeRole = (roles: string[]) => {
     const user = req.user;
 
     if (!user || !roles.includes(user.role)) {
-      res
-        .status(403)
-        .json({ message: "You are not authorized to access this resource" });
-      return;
+      throw new AppError(GENERAL_MESSAGES.UNAUTHORIZED_ACCESS, 403);
     }
 
     next();

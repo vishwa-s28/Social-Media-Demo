@@ -36,7 +36,7 @@ const sendNotification = async (
         .catch((err) => console.error("Push Error:", err));
     });
   } catch (error) {
-    console.error("Error sending notification:", error);
+    console.error(error);
   }
 };
 export default sendNotification;

@@ -4,6 +4,9 @@ import db from "../models/index";
 import axios from "axios";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
+import AppError from "../utils/error-helper";
+import { AUTH_ERRORS } from "../constants/error.constant";
+
 const { User, Token } = db;
 
 const registerUser = async (
@@ -23,10 +26,7 @@ const registerUser = async (
     } = req.body;
 
     if (!username || !email || !password) {
-      res.status(400).json({
-        message: "Missing required fields: name, email, and password.",
-      });
-      return;
+      throw new AppError(AUTH_ERRORS.MISSING_FIELDS, 400);
     }
 
     const apiKey = process.env.API_KEY;
@@ -37,18 +37,12 @@ const registerUser = async (
       !response.data.is_valid_format.value ||
       response.data.deliverability !== "DELIVERABLE"
     ) {
-      res
-        .status(400)
-        .json({ message: "Invalid email address or undeliverable email." });
-      return;
+      throw new AppError(AUTH_ERRORS.INVALID_EMAIL, 400);
     }
 
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
-      res.status(400).json({
-        message: "Email already exists. Please use a different email address.",
-      });
-      return;
+      throw new AppError(AUTH_ERRORS.EMAIL_EXISTS, 400);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -65,8 +59,7 @@ const registerUser = async (
     const { password: _, ...userWithoutPassword } = newUser.toJSON();
     res.status(201).json(userWithoutPassword);
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Internal Server Error" });
+    next(error);
   }
 };
 
@@ -80,23 +73,19 @@ const loginUser = async (
     const { email, password } = req.body;
 
     if (!email || !password) {
-      res.status(400).json({ message: "Email and password are required." });
-      return;
+      throw new AppError(AUTH_ERRORS.LOGIN_REQUIRED, 400);
     }
 
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      res.status(400).json({ message: "Invalid credentials. User not found." });
-      return;
+      throw new AppError(AUTH_ERRORS.INVALID_CREDENTIALS, 400);
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      res
-        .status(400)
-        .json({ message: "Invalid credentials. Incorrect password." });
-      return;
+      throw new AppError(AUTH_ERRORS.INCORRECT_PASSWORD, 400);
     }
+
     const expiration: string = process.env.JWT_EXPIRATION || "1h";
 
     const token = jwt.sign(
@@ -112,7 +101,7 @@ const loginUser = async (
 
     res.status(200).json({ token });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
@@ -124,21 +113,19 @@ const logoutUser = async (
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      res.status(401).json({ message: "Unauthorized. No token provided." });
-      return;
+      throw new AppError(AUTH_ERRORS.UNAUTHORIZED, 401);
     }
 
     const token = authHeader.split(" ")[1];
     const deletedToken = await Token.destroy({ where: { token } });
 
     if (!deletedToken) {
-      res.status(400).json({ message: "Logout failed. Invalid token." });
-      return;
+      throw new AppError(AUTH_ERRORS.LOGOUT_FAILED, 400);
     }
 
     res.status(200).json({ message: "Logout successful." });
   } catch (error) {
-    res.status(500).json({ message: "Internal Server Error" });
+    next(error);
   }
 };
 

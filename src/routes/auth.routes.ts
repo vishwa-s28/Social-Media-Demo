@@ -1,4 +1,4 @@
-import express, { Express, Request, Response, NextFunction } from "express";
+import express from "express";
 import {
   loginUser,
   logoutUser,
@@ -8,12 +8,13 @@ import {
   validateRegister,
   validateLogin,
 } from "../middlewares/validation.middleware";
+import { AUTH } from "../constants/endpoint.constant";
 import { authenticateToken } from "../middlewares/auth.middleware";
 
 const router = express.Router();
 
-router.post("/register", validateRegister, registerUser);
-router.post("/login", validateLogin, loginUser);
-router.post("/logout", authenticateToken, logoutUser);
+router.post(AUTH.REGISTER, validateRegister, registerUser);
+router.post(AUTH.LOGIN, validateLogin, loginUser);
+router.post(AUTH.LOGOUT, authenticateToken, logoutUser);
 
 export default router;

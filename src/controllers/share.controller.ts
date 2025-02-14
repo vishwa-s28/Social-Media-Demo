@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import db from "../models/index";
+import AppError from "../utils/error-helper";
+import { SHARE_ERRORS } from "../constants/error.constant";
+
 const { Share, Post, User } = db;
+
 interface CustomRequest extends Request {
   user?: {
     id: string;
@@ -17,12 +21,19 @@ const sharePost = async (
   try {
     const sender_id = req.user?.id;
     const { post_id, receiver_id } = req.body;
+
+    if (!sender_id) {
+      throw new AppError(SHARE_ERRORS.UNAUTHORIZED, 401);
+    }
+
     const post = await Post.findByPk(post_id);
     if (!post) {
-      res.status(404).send({ message: "Post not found" });
+      throw new AppError(SHARE_ERRORS.POST_NOT_FOUND, 404);
     }
+
     const share = await Share.create({ sender_id, receiver_id, post_id });
     const shareId = share.getDataValue("id");
+
     const shareWithDetails = await Share.findByPk(shareId, {
       attributes: {
         exclude: ["sender_id", "receiver_id", "post_id"],
@@ -45,7 +56,8 @@ const sharePost = async (
         },
       ],
     });
-    res.send({ message: "Post shared successfully", shareWithDetails });
+
+    res.send({ message: SHARE_ERRORS.POST_SHARED, shareWithDetails });
   } catch (err) {
     next(err);
   }

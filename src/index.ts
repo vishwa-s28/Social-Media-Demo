@@ -6,17 +6,21 @@ import dotenv from "dotenv";
 import db from "./models/index";
 import { createServer } from "http";
 import path from "path";
+import notFound from "./middlewares/404";
+import globalErrorHandler from "./middlewares/error-handler.middleware";
+import rateLimiter from "./middlewares/rate-limiter.middleware";
+import { ENDPOINTS } from "./constants/endpoint.constant";
 dotenv.config();
 
 const app: Express = express();
 const PORT: number | string = process.env.PORT || 3000;
+app.use(express.static(path.join(__dirname, "../client")));
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "../client")));
-app.get("/config", (req, res) => {
-  res.json({ publicVapidKey: process.env.PUBLIC_VAPID_KEY });
-});
-app.use("/", generalRoutes);
+app.use(rateLimiter);
+app.use(ENDPOINTS.BASE, generalRoutes);
+app.use(notFound);
+app.use(globalErrorHandler);
 
 const server = createServer(app);
 initSocket(server);
