@@ -12,7 +12,6 @@ import ChatModel from "./chat.model";
 import TagModel from "./tag.model";
 import LikeModel from "./like.model";
 import BlockModel from "./block.model";
-import PrivacyModel from "./privacy.model";
 import TokenModel from "./token.model";
 import ShareModel from "./share.model";
 import GroupChatModel from "./group-chat.model";
@@ -42,7 +41,6 @@ const Chat = ChatModel(sequelize, DataTypes);
 const Tag = TagModel(sequelize, DataTypes);
 const Like = LikeModel(sequelize, DataTypes);
 const Block = BlockModel(sequelize, DataTypes);
-const Privacy = PrivacyModel(sequelize, DataTypes);
 const Share = ShareModel(sequelize, DataTypes);
 const GroupChat = GroupChatModel(sequelize, DataTypes);
 const GroupMessage = GroupMessageModel(sequelize, DataTypes);
@@ -58,7 +56,6 @@ const db = {
   Tag,
   Like,
   Block,
-  Privacy,
   Share,
   GroupChat,
   GroupMessage,

@@ -6,14 +6,16 @@ import jwt from "jsonwebtoken";
 import "dotenv/config";
 import AppError from "../utils/error-helper";
 import { AUTH_ERRORS } from "../constants/error.constant";
+import fs from "fs";
+import path from "path";
 
 const { User, Token } = db;
-
 const registerUser = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
+  let profileImagePath: string | null = null;
   try {
     const {
       username,
@@ -21,7 +23,7 @@ const registerUser = async (
       password,
       role,
       bio,
-      profileImage,
+      // profileImage,
       profileVisibility,
     } = req.body;
 
@@ -46,19 +48,31 @@ const registerUser = async (
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    if (req.file) {
+      profileImagePath = path.join(__dirname, "../uploads", req.file.filename);
+    }
+
     const newUser = await User.create({
       username,
       email,
       password: hashedPassword,
       ...(role && { role }),
       ...(bio && { bio }),
-      ...(profileImage && { profile_image: profileImage }),
+      ...(profileImagePath && {
+        profile_image: `${req.file?.filename}`,
+      }),
       ...(profileVisibility && { profile_visibility: profileVisibility }),
     });
 
     const { password: _, ...userWithoutPassword } = newUser.toJSON();
     res.status(201).json(userWithoutPassword);
   } catch (error) {
+    if (profileImagePath) {
+      fs.unlink(profileImagePath, (err) => {
+        if (err) console.error("Error deleting file:", err);
+      });
+    }
     next(error);
   }
 };

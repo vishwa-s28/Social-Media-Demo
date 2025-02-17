@@ -32,6 +32,8 @@ const AUTH_ERRORS = {
   INCORRECT_PASSWORD: "Invalid credentials. Incorrect password.",
   UNAUTHORIZED: "Unauthorized. No token provided.",
   LOGOUT_FAILED: "Logout failed. Invalid token.",
+  INVALID_IMAGE_FORMAT:
+    "Invalid image format. Please upload png, jpg, or jpeg images.",
 };
 
 const BLOCK_ERRORS = {

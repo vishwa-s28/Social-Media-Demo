@@ -7,7 +7,6 @@ export default (sequelize: Sequelize, dataTypes: typeof DataTypes) => {
       Post.hasMany(models.Comment, { foreignKey: "post_id", as: "comments" });
       Post.hasMany(models.Tag, { foreignKey: "post_id", as: "taggedUser" });
       Post.hasMany(models.Like, { foreignKey: "post_id", as: "postLikes" });
-      Post.hasMany(models.Privacy, { foreignKey: "post_id" });
       Post.hasMany(models.Share, { foreignKey: "post_id", as: "Shares" });
       // Post.belongsToMany(models.User, {
       //   through: models.Tag,

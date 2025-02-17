@@ -7,7 +7,6 @@ class AppError extends Error {
     this.statusCode = statusCode;
     this.isOperational = true;
 
-    // Ensures proper prototype chain
     Object.setPrototypeOf(this, AppError.prototype);
   }
 }

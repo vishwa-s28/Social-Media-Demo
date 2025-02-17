@@ -10,6 +10,7 @@ import notFound from "./middlewares/404";
 import globalErrorHandler from "./middlewares/error-handler.middleware";
 import rateLimiter from "./middlewares/rate-limiter.middleware";
 import { ENDPOINTS } from "./constants/endpoint.constant";
+import redisClient from "./config/redis";
 dotenv.config();
 
 const app: Express = express();
@@ -37,7 +38,7 @@ const startServer = async () => {
       console.log(`✅ Server is running on port ${PORT}`);
     });
   } catch (error) {
-    console.error("✗ Unable to connect to the database:", error);
+    console.error("✗ Unable to connect to the database or redis:", error);
     process.exit(1);
   }
 };

@@ -10,10 +10,11 @@ import {
 } from "../middlewares/validation.middleware";
 import { AUTH } from "../constants/endpoint.constant";
 import { authenticateToken } from "../middlewares/auth.middleware";
+import { uploadProfileImage } from "../middlewares/upload-image.middleware";
 
 const router = express.Router();
 
-router.post(AUTH.REGISTER, validateRegister, registerUser);
+router.post(AUTH.REGISTER, uploadProfileImage, validateRegister, registerUser);
 router.post(AUTH.LOGIN, validateLogin, loginUser);
 router.post(AUTH.LOGOUT, authenticateToken, logoutUser);
 
